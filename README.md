@@ -49,26 +49,26 @@
 
 国航
 
-![国航](./images/2020-07-31/guohang.jpeg)
+![国航](/images/2020-07-31/guohang.jpeg)
 
 东航 上海
 
-![东航，上海](./images/2020-07-31/donghang_shanghai.png)
+![东航，上海](/images/2020-07-31/donghang_shanghai.png)
 
 东航 西安
 
-![东航，西安](./images/2020-07-31/donghang_xian.png)
+![东航，西安](/images/2020-07-31/donghang_xian.png)
 
 深圳航空
 
-![深圳航空](./images/2020-07-31/shenzhen.png)
+![深圳航空](/images/2020-07-31/shenzhen.png)
 
 吉祥航空
 
-![深圳航空](./images/2020-07-31/jixiang.png)
+![深圳航空](/images/2020-07-31/jixiang.png)
 
 春秋
 
-![春秋航空](./images/2020-07-31/chunqiu.png)
+![春秋航空](/images/2020-07-31/chunqiu.png)
 
 更多信息待补充 ～
