@@ -1,0 +1,39 @@
+{
+  "name": "plane-ticket-info",
+  "version": "0.0.1",
+  "description": "search info of plane ticket from japan to china",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haofo/plane-ticket-info.git"
+  },
+  "keywords": [
+    "Koa",
+    "Javascript",
+    "NodeJS",
+    "plane ticket"
+  ],
+  "author": "haofo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haofo/plane-ticket-info/issues"
+  },
+  "homepage": "https://github.com/haofo/plane-ticket-info#readme",
+  "dependencies": {
+    "@koa/router": "^9.3.1",
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
+    "dayjs": "^1.8.31",
+    "dotenv": "^8.2.0",
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "koa-static": "^5.0.0",
+    "node-schedule": "^1.3.2",
+    "puppeteer": "^5.2.1",
+    "qs": "^6.9.4"
+  }
+}
