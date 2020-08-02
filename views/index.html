@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>机票查询</title>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
   <style>
     body {
       background-color: #f6f8fa;
@@ -12,21 +13,248 @@
     }
     h3 {
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 500;
     }
+    .title {
+      padding: 0 15px;
+    }
+    .search-area {
+      padding: 5px 15px;
+    }
+    .search-area .tips {
+      font-size: 12px;
+      color: #666;
+    }
+    .quickly {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+    }
+    .custom {
+      padding-bottom: 10px;
+    }
+    .result-table {
+      display: none;
+      margin: 0 15px;
+    }
+    .loading-gif {
+      display: none;
+      width: 100px;
+      height: 100px;
+    }
+    .p15 {
+      padding: 0 15px;
+    }
+    .result-msg {
+      padding: 0 15px;
+    }
+    .tips {
+      margin: 0;
+    }
+    .code {
+      color: #5e6d82;
+      background-color: #e6effb;
+      margin: 0 4px;
+      display: inline-block;
+      padding: 1px 5px;
+      font-size: 12px;
+      border-radius: 3px;
+      height: 18px;
+      line-height: 18px;
+    }
+    @media screen and (max-width: 35.5em) {
+      .qry-btn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      input[type="date"] {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .loading-wrapper {
+        text-align: center;
+      }
+      .loading-gif {
+        width: 100px;
+        height: 100px;
+      }
+    };
   </style>
 </head>
 <body>
-  <h3>今天也不要着急哈，慢慢刷，总会买到机票的</h3>
+  <h3 class="title">今天也不要着急哈</h3>
   <main>
+    <form class="search-area pure-form">
+      <div class="quickly">
+        <p class="search-tit">快速开始</p>
+        <button type="button" class="js-qry-btn qry-btn pure-button pure-button-primary">2020-10-01</button>
+        <button type="button" class="js-qry-btn qry-btn pure-button pure-button-primary">2020-10-08</button>
+        <button type="button" class="js-qry-btn qry-btn pure-button pure-button-primary">2020-10-15</button>
+      </div>
+      <div class="custom">
+        <p class="search-tit">自定义日期查询</p>
+        <input class="js-date-input" type="date" />
+        <button type="button" class="js-qry-btn qry-btn pure-button pure-button-primary">开始查询</button>
+      </div>
+      <p class="tips">开始后将以 <code class="code">1 分钟</code> 一次的频率查询选定日期的航班信息</p>
+      <p class="tips"><code class="code">第1次</code> 会比较慢，大概有个 <code>10s</code> 左右</p>
+    </form>
+    <p class="p15">
+      <span>当前所查日期是 <code class="code js-date-show"></code> </span>
+      已经查询次数 <span class="js-count qry-count code">0</span>
+    </p>
+    <table class="js-result-table pure-table result-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>depart</th>
+          <th>arrive</th>
+          <th>airports</th>
+          <th>prices</th>
+        </tr>
+      </thead>
     
+      <tbody class="js-result-table-tbody"></tbody>
+    </table>
+    <div class="loading-wrapper">
+      <img class="js-loading loading-gif" src="/views/spinner.gif" alt="loading...">
+    </div>
+    <p class="js-result-msg result-msg"></p>
   </main>
 </body>
 <script src="/node_modules/axios/dist/axios.js"></script>
 <script>
-  console.log(axios);
-  // axios.get('/query/2020-10-22').then(resp => {
-  //   console.log(resp);
-  // }).catch(err => console.log(err))
+  window.onload = function() {
+    addEvents();
+  }
+
+  let timer = null;
+  let count = 0;
+
+  function addEvents(params) {
+    const btns = document.querySelectorAll('.js-qry-btn');
+    for (const btn of btns) {
+      btn.addEventListener('click', e => {
+        let text = e.target.textContent
+        let date = "";
+        if (text.includes('2020')) {
+          date = text;
+        } else {
+          let dateEl = document.querySelector('.js-date-input');
+          date = dateEl.value;
+        }
+        updateCount(true);
+        queryTicket(date)
+      });
+    }
+  }
+
+  function queryTicket(date) {
+    if (!date) {
+      alert('没选日期哈');
+    }
+    dateShow(date);
+    tableHidden();
+    hiddenMsg();
+    axios.get(`/query/${date}`)
+      .then(resp => {
+        updateCount();
+        if (resp.data && resp.data.code === 0) {
+          tableShow();
+          appendTableTr(resp.data);
+        } else if (resp.data.code > 0){
+          loadingHidden();
+          const msg = "暂时还没票，别灰心哈，一分钟后我就又开始啦~";
+          updateMsg(msg);
+          resetTimer();
+          timer = setTimeout(() => queryTicket(date), 1000 * 60);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        updateMsg("出现了一些错误，再点一下查询按钮，才能继续查询😓");
+        resetTimer();
+        loadingHidden();
+      })
+  }
+
+  function dateShow(date) {
+    let dateShowEl = document.querySelector('.js-date-show');
+    dateShowEl.textContent = date;
+  }
+
+  function resetTimer() {
+    if (timer) { clearTimeout(timer); timer = null; }
+  }
+
+  function updateMsg(msg, isHidden) {
+    let msgEl = document.querySelector('.js-result-msg');
+    msgEl.style.display = 'block';
+    msgEl.textContent = msg;
+  }
+
+  function hiddenMsg() {
+    let msgEl = document.querySelector('.js-result-msg');
+    msgEl.style.display = 'none';
+  }
+
+  function tableShow() {
+    const { table, loading } = getEls();
+    table.style.display = 'table';
+    loading.style.display = 'none';
+  }
+
+  function tableHidden() {
+    const { table, loading } = getEls();
+    table.style.display = 'none';
+    loading.style.display = 'inline-block';
+  }
+
+  function loadingHidden(params) {
+    const { loading } = getEls();
+    loading.style.display = 'none';
+  }
+
+  function getEls() {
+    const table = document.querySelector('.js-result-table');
+    const loading = document.querySelector('.js-loading');
+    return { table, loading }
+  }
+
+  function appendTableTr(result){
+    const tbody = document.querySelector('.js-result-table-tbody');
+    const tmp = document.createDocumentFragment();
+    if (result.code === 0) {
+      result.list.forEach(item => {
+        let tr = document.createElement('tr');
+        let td0 = document.createElement('td');
+        td0.textContent = item.flightNo;
+        tr.appendChild(td0);
+        let td1 = document.createElement('td');
+        td1.textContent = item.depart;
+        tr.appendChild(td1);
+        let td2 = document.createElement('td');
+        td2.textContent = item.arrive;
+        tr.appendChild(td2);
+        let td3 = document.createElement('td');
+        td3.textContent = item.airports;
+        tr.appendChild(td3);
+        let td4 = document.createElement('td');
+        td4.textContent = item.prices;
+        tr.appendChild(td4);
+        tmp.appendChild(tr);
+      });
+      tbody.appendChild(tmp);
+    }
+  }
+
+  function updateCount(isReset) {
+    if (isReset) {
+      count = 0;
+    } else {
+      count++;
+    }
+    let countEl = document.querySelector('.js-count');
+    countEl.textContent = count;
+  }
 </script>
 </html>
