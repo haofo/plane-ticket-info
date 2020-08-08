@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Koa = require('koa');
 const staticServer = require('koa-static');
 const router = require('@koa/router')();
@@ -34,4 +35,4 @@ async function query(ctx){
   ctx.body = JSON.stringify(result);
 }
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
